@@ -31,34 +31,35 @@
             <th scope="col">Name</th>
             <th scope="col">Details</th>
             <th scope="col">Price</th>
-            <th scope="col">Order</th>
+            <th scope="col">Action</th>
           </tr>
         </thead>
         <tbody>
+          <tr>
+            <td scope="row">#</td>
+            <td><input type="text" class="form-control" id="" name="name" placeholder="Name" required></td>
+            <td><input type="text" class="form-control" id="" name="details" placeholder="Details" required></td>
+            <td><input type="number" class="form-control" id="" name="price" placeholder="Price" required></td>
+            <td>
+              <a href="/add_food">
+                <button type="button" class="btn btn-success" disabled>Add</button>
+              </a>
+            </td>
+          </tr>
           {% if response %}
           {% for item in response %}
           <tr>
-            <td scope="row">{{ item['foodid'] }}</td>
-            <td>{{ item['foodname'] }}</td>
-            <td>{{ item['fooddetail'] }}</td>
-            <td>{{ item['foodprice'] }}</td>
+            <td scope="row">{{ item['food_id'] }}</td>
+            <td>{{ item['food_name'] }}</td>
+            <td>{{ item['food_detail'] }}</td>
+            <td>{{ item['food_price'] }}</td>
             <td>
-              <a href="/order/{{item['foodid']}}"><button type="button" class="btn btn-danger"
+              <a href="/order/{{item['food_id']}}"><button type="button" class="btn btn-danger"
                   disabled>Remove</button></a>
             </td>
           </tr>
           {% endfor %}
           {% endif %}
-          <tr>
-            <td scope="row"></td>
-            <td><input type="text" class="form-control" id="" placeholder="Name"></td>
-            <td><input type="text" class="form-control" id="" placeholder="Details"></td>
-            <td><input type="text" class="form-control" id="" placeholder="Price"></td>
-            <td>
-              <a href="/order"><button type="button" class="btn btn-success"
-                  disabled>Add</button></a>
-            </td>
-          </tr>
         </tbody>
       </table>
     </div>
