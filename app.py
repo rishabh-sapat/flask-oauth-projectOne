@@ -246,7 +246,7 @@ def food_create():
         except:
             return jsonify({"error": "token is invalid, Please login again userapp.food/create"})
         # resp = requests.get("http://localhost:5001/create", headers={'Authorization': 'Bearer ' + token})
-        resp = requests.get("https://13.234.66.235:5000/create", headers={'Authorization': 'Bearer ' + token})
+        resp = requests.get("http://52.66.216.101/create", headers={'Authorization': 'Bearer ' + token})
         if not resp:
             return jsonify({"error": "no response from service"})
         response_dict = resp.json()

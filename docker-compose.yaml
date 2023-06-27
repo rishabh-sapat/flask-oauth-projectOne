@@ -1,0 +1,35 @@
+version: '3.1'
+services:
+  userapp:
+    image: userapp:latest
+    restart: always
+    ports:
+      - "5000:5000"
+    volumes:
+      - users_service:/app
+    
+  db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: Sapat1925
+      MYSQL_DATABASE: user_db
+      MYSQL_USER: abhi
+      MYSQL_PASSWORD: abd781997
+    ports:
+      - "3308:3306"
+    volumes:
+      - dbdata_users:/var/lib/mysql
+      
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    restart: always
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: Sapat1925
+    ports:
+      - "8080:80"
+volumes:
+  dbdata_users:
+  users_service:
