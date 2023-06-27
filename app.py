@@ -57,7 +57,7 @@ def token_required(fun):
 # app.config["AWS_COGNITO_DOMAIN"] = "https://domainown.auth.us-east-2.amazoncognito.com"
 # app.config["AWS_COGNITO_USER_POOL_CLIENT_ID"] = "2dvk2cevei1dlm6i3ipgp38c5q"
 # app.config["AWS_COGNITO_USER_POOL_CLIENT_SECRET"] = "c0sc8cqvcj25obvu492023hr229mtuq7689a6g743cj8a9dnb3i"
-# app.config["AWS_COGNITO_REDIRECT_URL"] = "http://localhost:5000/callback"  # redirect, callback should be same
+# app.config["AWS_COGNITO_REDIRECT_URL"] = "http://localhost:5000/postlogin"  # redirect, callback should be same
 # app.config["AWS_COGNITO_LOGOUT_URL"] = "https://google.com"
 
 # # Configuration required for CognitoAuth localhost
@@ -116,6 +116,7 @@ def postlogin():
     # login
     print("after login")
     try:
+        # print("session is:",session)
         # name = session["user_info"]["name"]
         email = session["user_info"]["email"]
         client_id = session["claims"]["client_id"]
@@ -154,40 +155,11 @@ def claims():
     # an `@app.error_handler(AuthorisationRequiredError)
     # If their auth is valid, the current session will be shown including
     # their claims and user_info extracted from the Cognito tokens.
-    # def encode_auth_token(self, payload):
-    #     """
-    #     Generates the Auth Token
-    #     :return: string
-    #     """
-    #  return jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
-    # try:
-    #     session["user_info"]["name"]
-    # except:
-    #     pass
-    # email = session["user_info"]["email"]
-    # client_id = session["claims"]["client_id"]
-    # scope = session["claims"]["scope"]
-    # cog_username = session["user_info"]["cognito:username"]
-    # try:
-    #     payload = {'client_id': client_id, 'email': email, 'cognito-username': cog_username, 'scope': scope,
-    #                "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=15)}
-    #     token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
-    #
-    # except Exception as e:
-    #     return e
-    #
-    # usr = User(email=email, cog_username=cog_username, scope=scope, client_id=client_id, token=token)
-    # db.session.add(usr)
-    # db.session.commit()
 
-    # return jsonify({'token': token})
-    # print(session)
-    try:
-        data = request.args['token']
-        # data_dict = json.loads(data)
-        # return redirect(url_for("userdata", token=data))
-    except:
-        return jsonify({"error": "Token missing, Please login again"})
+    if session.get('LOGGED_IN') is not False:
+        return jsonify(session)
+    else:
+        return redirect(url_for('home'))
 
 
 @app.route("/userdata")
@@ -298,7 +270,7 @@ def food_list():
         except:
             return redirect(url_for('log_out'))
         # resp = requests.get("http://localhost:5001/get", headers={'Authorization': 'Bearer ' + token})
-        resp = requests.get("https://13.234.66.235:5000/get", headers={'Authorization': 'Bearer ' + token})
+        resp = requests.get("http://52.66.216.101/get", headers={'Authorization': 'Bearer ' + token})
         # print("content :", resp.content)
         if not resp:
             return jsonify({"error": "no response from service"})
@@ -332,17 +304,26 @@ def food_list():
 
 
 # Define a resource for the /call_app_b endpoint
-@app.route("/demo")
-def demo():
-    # resp = requests.get("http://localhost:5002")
-    resp = requests.get("https://13.234.66.235:5000")
+@app.route("/foodapp")
+def foodapp():
+    # resp = requests.get("http://localhost:5001")
+    resp = requests.get("http://52.66.216.101")
     response_dict = resp.json()
     return jsonify(response_dict)
 
 
 # Define a resource for the /call_app_b endpoint
-@app.route("/order/<fname>/<fprice>") # DONE
-def make_order(fname,fprice):
+@app.route("/orderapp")
+def orderapp():
+    # resp = requests.get("http://localhost:5002")
+    resp = requests.get("http://52.66.216.101:5001")
+    response_dict = resp.json()
+    return jsonify(response_dict)
+
+
+# Define a resource for the /call_app_b endpoint
+@app.route("/order/<fname>/<fprice>")  # DONE
+def make_order(fname, fprice):
     try:
         token = request.args['token']
     except:
@@ -354,8 +335,8 @@ def make_order(fname,fprice):
         except:
             return jsonify({"error": "token is invalid, Please login again userapp.order/id"})
         try:
-            # resp = requests.get("http://localhost:5002/create/" + fname + "/" + str(fprice),  headers={'Authorization': 'Bearer ' + token})
-            resp = requests.get("https://13.234.66.235:5001/create/" + fname + "/" + str(fprice),  headers={'Authorization': 'Bearer ' + token})
+            # resp = requests.get("http://localhost:5002/create/" + fname + "/" + str(fprice), headers={'Authorization': 'Bearer ' + token})
+            resp = requests.get("http://52.66.216.101:5001/create/" + fname + "/" + str(fprice), headers={'Authorization': 'Bearer ' + token})
         except:
             return jsonify({"error": "Wrong URL, Please login again userapp.order/id"})
         if not resp:
@@ -386,6 +367,7 @@ def make_order(fname,fprice):
     # response_dict = resp2.json()
     # return render_template('order.html', response=response_dict)
 
+
 # Define a resource for the /call_app_b endpoint
 @app.route("/order/history")
 def order_history():
@@ -400,7 +382,7 @@ def order_history():
         except:
             return redirect(url_for('log_out'))
         # resp = requests.get("http://localhost:5002/history", headers={'Authorization': 'Bearer ' + token})
-        resp = requests.get("https://13.234.66.235:5001/history", headers={'Authorization': 'Bearer ' + token})
+        resp = requests.get("http://52.66.216.101:5001/history", headers={'Authorization': 'Bearer ' + token})
         # print("content :", resp.content)
         if not resp:
             return jsonify({"error": "no response from service"})
@@ -411,6 +393,7 @@ def order_history():
         return render_template('order_history.html', response=response_dict, token=token)
     else:
         return redirect(url_for('log_out'))
+
 
 @app.route("/postlogout")
 def postlogout():
